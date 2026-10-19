@@ -17,6 +17,7 @@
 
 #include <atomic>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <utility>
 
@@ -93,13 +94,15 @@ public:
     return 1u;
   }
 
-  bool add_to_wait_set(rcl_wait_set_t * wait_set) override
+  void add_to_wait_set(rcl_wait_set_t * wait_set) override
   {
     std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
 
     const rcl_ret_t ret = rcl_wait_set_add_guard_condition(
       wait_set, &rcl_guard_condition_, nullptr);
-    return RCL_RET_OK == ret;
+    if (RCL_RET_OK != ret) {
+      rclcpp::exceptions::throw_from_rcl_error(ret, "failed to add guard condition to wait set");
+    }
   }
 
   bool is_ready(rcl_wait_set_t *) override
@@ -107,7 +110,12 @@ public:
     return has_work_;
   }
 
-  void execute() override
+  std::shared_ptr<void> take_data() override
+  {
+    return nullptr;
+  }
+
+  void execute(std::shared_ptr<void> &) override
   {
     std::lock_guard<std::mutex> lock(execute_mutex_);
     if (!func_) {return;}

@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# PYTHON_EXECUTABLE is no longer set by ament_cmake_python in Humble
+if(NOT PYTHON_EXECUTABLE)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  set(PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
+endif()
+
 if(NOT COMMAND string_camel_case_to_lower_case_underscore)
   find_package(rosidl_cmake REQUIRED)
   include("${rosidl_cmake_DIR}/string_camel_case_to_lower_case_underscore.cmake")

@@ -171,7 +171,9 @@ bool RosParamService::setOrDeclareParameter(
     RTT::log(RTT::Info) <<
       "The parameter did not exist" <<
       RTT::endlog();
-    rosnode->declare_parameter(name);
+    rcl_interfaces::msg::ParameterDescriptor descriptor;
+    descriptor.dynamic_typing = true;
+    rosnode->declare_parameter(name, value, descriptor);
   }
 
   // Update the parameter

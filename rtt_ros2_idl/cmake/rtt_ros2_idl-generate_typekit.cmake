@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# PYTHON_EXECUTABLE is no longer set by ament_cmake_python in Humble
+if(NOT PYTHON_EXECUTABLE)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  set(PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
+endif()
+
 if(NOT COMMAND string_camel_case_to_lower_case_underscore)
   find_package(rosidl_cmake REQUIRED)
   include("${rosidl_cmake_DIR}/string_camel_case_to_lower_case_underscore.cmake")
@@ -66,6 +72,10 @@ function(_rtt_ros2_generate_typekit _package)
   # Find all (selected) types in the given package.
   set(_include_dir "${${_package}_DIR}/../../../include/${_package}")
   normalize_path(_include_dir "${_include_dir}")
+  # Since ROS 2 Galactic/Humble, headers are installed in include/<package>/<package>/
+  if(IS_DIRECTORY "${_include_dir}/${_package}")
+    set(_include_dir "${_include_dir}/${_package}")
+  endif()
   set(_output_dir "${CMAKE_CURRENT_BINARY_DIR}/rtt_ros2_idl/${_package}/typekit")
   set(_messages "")
   set(_services "")
