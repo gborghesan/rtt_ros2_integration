@@ -31,6 +31,14 @@
 
 #include "gtest/gtest.h"
 
+// Humble requires a type or default value; dynamic typing keeps the Foxy "untyped" behavior.
+static void declareUntypedParameter(const rclcpp::Node::SharedPtr & node, const std::string & name)
+{
+  rcl_interfaces::msg::ParameterDescriptor descriptor;
+  descriptor.dynamic_typing = true;
+  node->declare_parameter(name, rclcpp::ParameterValue(), descriptor);
+}
+
 class TestRosParamsEnvironment
   : public ::testing::Environment
 {
@@ -94,7 +102,7 @@ TEST_F(TestRosParams, TestGlobalNodeParams)
   );
 
   // Check setting a parameter (INTEGER)
-  rtt_ros2_node::getNode(this)->declare_parameter("int_parameter");
+  declareUntypedParameter(rtt_ros2_node::getNode(this), "int_parameter");
   EXPECT_TRUE(
     rosparam.setParameter("int_parameter", rclcpp::ParameterValue(42)));
 
@@ -104,7 +112,7 @@ TEST_F(TestRosParams, TestGlobalNodeParams)
   EXPECT_EQ(new_int.get<int>(), 42);
 
   // Check setting a parameter (DOUBLE)
-  rtt_ros2_node::getNode(this)->declare_parameter("double_parameter");
+  declareUntypedParameter(rtt_ros2_node::getNode(this), "double_parameter");
   EXPECT_TRUE(
     rosparam.setParameter("double_parameter", rclcpp::ParameterValue(3.14159)));
 
@@ -114,7 +122,7 @@ TEST_F(TestRosParams, TestGlobalNodeParams)
   EXPECT_EQ(new_double.get<double>(), 3.14159);
 
   // Check setting a parameter (BOOL)
-  rtt_ros2_node::getNode(this)->declare_parameter("bool_parameter");
+  declareUntypedParameter(rtt_ros2_node::getNode(this), "bool_parameter");
   EXPECT_TRUE(
     rosparam.setParameter("bool_parameter", rclcpp::ParameterValue(true)));
 
@@ -124,7 +132,7 @@ TEST_F(TestRosParams, TestGlobalNodeParams)
   EXPECT_EQ(new_bool.get<bool>(), true);
 
   // Check setting a parameter (STRING)
-  rtt_ros2_node::getNode(this)->declare_parameter("string_parameter");
+  declareUntypedParameter(rtt_ros2_node::getNode(this), "string_parameter");
   EXPECT_TRUE(
     rosparam.setParameter(
       "string_parameter",
@@ -160,7 +168,7 @@ TEST_F(TestRosParams, TestComponentNodeParams)
   );
 
   // Check setting a parameter (INTEGER)
-  rtt_ros2_node::getNode(this)->declare_parameter("int_parameter");
+  declareUntypedParameter(rtt_ros2_node::getNode(this), "int_parameter");
   EXPECT_TRUE(
     rosparam.setParameter("int_parameter", rclcpp::ParameterValue(41)));
 
@@ -170,7 +178,7 @@ TEST_F(TestRosParams, TestComponentNodeParams)
   EXPECT_EQ(new_int.get<int>(), 41);
 
   // Check setting a parameter (BOOL)
-  rtt_ros2_node::getNode(this)->declare_parameter("bool_parameter");
+  declareUntypedParameter(rtt_ros2_node::getNode(this), "bool_parameter");
   EXPECT_TRUE(
     rosparam.setParameter("bool_parameter", rclcpp::ParameterValue(false)));
 
@@ -213,7 +221,7 @@ TEST_F(TestRosParams, TestComponentNodeParams)
   EXPECT_EQ(true, this->bool_member_);
 
   // Check bad assignment
-  rtt_ros2_node::getNode(this)->declare_parameter("string_parameter");
+  declareUntypedParameter(rtt_ros2_node::getNode(this), "string_parameter");
   EXPECT_TRUE(
     rosparam.setParameter("string_parameter", rclcpp::ParameterValue("string_value")));
   EXPECT_FALSE(
